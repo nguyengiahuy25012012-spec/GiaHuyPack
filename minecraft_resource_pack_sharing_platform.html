@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GiaHuyPack - Minecraft Resource Pack Sharing Platform</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #ffc3a0 0%, #ffafbd 25%, #e0c3fc 60%, #8ec5fc 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+    }
+
+    /* Glassmorphism Classes */
+    .glass-header {
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card:hover {
+      transform: translateY(-6px);
+      background: rgba(255, 255, 255, 0.75);
+      box-shadow: 0 20px 40px -10px rgba(236, 72, 153, 0.2);
+    }
+
+    .glass-modal {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(236, 72, 153, 0.4);
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(236, 72, 153, 0.7);
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-800 antialiased selection:bg-pink-300 selection:text-pink-900">
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="sticky top-0 z-40 p-3 sm:p-4">
+    <div class="max-w-7xl mx-auto glass-header rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Logo Brand -->
+      <a href="#" class="flex items-center gap-3 shrink-0">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-pink-500 to-indigo-500 p-0.5 shadow-md flex items-center justify-center">
+          <div class="w-full h-full bg-white/90 rounded-[10px] flex items-center justify-center">
+            <i data-lucide="box" class="w-6 h-6 text-pink-500"></i>
+          </div>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-2xl tracking-tight bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent leading-none">
+            giahuypack
+          </h1>
+          <p class="text-[11px] font-semibold text-slate-500 mt-0.5">Minecraft Resource Sharing</p>
+        </div>
+      </a>
+
+      <!-- Search & Filters -->
+      <div class="flex items-center gap-3 flex-1 max-w-lg min-w-[280px]">
+        <!-- Search Input -->
+        <div class="relative w-full">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Tìm kiếm pack Anime, PvP, Cute..." 
+            class="w-full pl-10 pr-9 py-2 rounded-xl bg-white/60 border border-white/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-400/50 text-sm font-medium placeholder-slate-400 transition-all shadow-inner"
+            oninput="filterPacks()"
+          />
+          <button id="clearSearch" onclick="clearSearchInput()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Edition Tabs -->
+        <div class="flex bg-white/50 p-1 rounded-xl border border-white/70 shrink-0">
+          <button id="tab-all" onclick="setEdition('all')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-pink-600 shadow-sm">Tất cả</button>
+          <button id="tab-java" onclick="setEdition('java')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900">Java</button>
+          <button id="tab-bedrock" onclick="setEdition('bedrock')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900">Bedrock</button>
+        </div>
+      </div>
+
+      <!-- Actions Right -->
+      <div class="flex items-center gap-2.5 shrink-0">
+        <button onclick="openDonateModal()" class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg transition-all active:scale-95">
+          <i data-lucide="heart" class="w-4 h-4 fill-white"></i>
+          <span>Ủng hộ GiaHuyPack</span>
+        </button>
+        <a href="https://discord.gg" target="_blank" class="p-2 bg-white/60 hover:bg-white rounded-xl text-indigo-600 border border-white transition-all shadow-sm" title="Discord Community">
+          <i data-lucide="message-square" class="w-5 h-5"></i>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-4">
+
+    <!-- ANNOUNCEMENT BANNER -->
+    <div class="glass-header rounded-2xl p-3.5 mb-6 flex items-center justify-between gap-3 text-xs sm:text-sm text-slate-700 font-medium">
+      <div class="flex items-center gap-2.5 overflow-hidden">
+        <span class="px-2.5 py-1 bg-pink-500 text-white rounded-lg text-xs font-extrabold shrink-0 shadow-sm animate-pulse">LƯU Ý</span>
+        <p class="truncate font-semibold text-slate-800">Lưu ý: Mong mọi người ủng hộ ạ! ❤ (◡‿◡✿)</p>
+      </div>
+      <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 shrink-0 p-1">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- PACKS GRID -->
+    <div id="packsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <!-- Cards rendered via JS -->
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div id="emptyState" class="hidden text-center py-16">
+      <div class="w-16 h-16 bg-white/60 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm border border-white">
+        <i data-lucide="search-x" class="w-8 h-8 text-pink-400"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-700">Không tìm thấy Resource Pack nào</h3>
+      <p class="text-xs text-slate-500 mt-1">Thử tìm kiếm với từ khóa khác hoặc chuyển chế độ Java / Bedrock.</p>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="mt-auto py-6 border-t border-white/40 text-center text-xs text-slate-600 font-medium bg-white/20 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p>© 2026 GiaHuyPack - Created with ❤ for Minecraft Community</p>
+      <div class="flex items-center gap-4 text-slate-500">
+        <a href="#" class="hover:text-pink-600 transition-colors">Điều khoản</a>
+        <span>•</span>
+        <a href="#" class="hover:text-pink-600 transition-colors">Hướng dẫn cài đặt</a>
+        <span>•</span>
+        <a href="#" class="hover:text-pink-600 transition-colors">Báo lỗi Pack</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- DETAIL MODAL -->
+  <div id="detailModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md hidden transition-opacity">
+    <div class="glass-modal w-full max-w-2xl rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeDetailModal()" class="absolute right-4 top-4 w-9 h-9 bg-white/80 hover:bg-white text-slate-500 rounded-full flex items-center justify-center shadow-md transition-all">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div id="modalContent">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- DONATE MODAL -->
+  <div id="donateModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md hidden transition-opacity">
+    <div class="glass-modal w-full max-w-md rounded-3xl p-6 shadow-2xl relative text-center">
+      <button onclick="closeDonateModal()" class="absolute right-4 top-4 w-8 h-8 bg-white/80 hover:bg-white text-slate-500 rounded-full flex items-center justify-center shadow-md">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+
+      <div class="w-14 h-14 bg-gradient-to-tr from-pink-400 to-rose-400 text-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-md">
+        <i data-lucide="heart" class="w-7 h-7 fill-white"></i>
+      </div>
+
+      <h3 class="text-xl font-extrabold text-slate-800">Ủng hộ GiaHuyPack</h3>
+      <p class="text-xs text-slate-600 mt-1 mb-4 leading-relaxed">
+        Cảm ơn bạn đã tiếp thêm động lực để mình duy trì và sáng tạo nhiều Resource Pack Minecraft Anime chất lượng hơn!
+      </p>
+
+      <div class="p-3 bg-white rounded-2xl border border-pink-200 mb-4 inline-block shadow-sm">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=GIAHUYPACK_DONATE" alt="Donate QR Code" class="w-44 h-44 mx-auto rounded-xl" />
+      </div>
+
+      <div class="bg-pink-50/80 rounded-2xl p-3 border border-pink-100 text-left">
+        <div class="flex items-center justify-between text-xs font-semibold text-slate-700 py-1 border-b border-pink-100">
+          <span>Phương thức:</span>
+          <span class="text-pink-600 font-bold">Momo / Banking / ZaloPay</span>
+        </div>
+        <div class="flex items-center justify-between text-xs font-semibold text-slate-700 py-1 mt-1">
+          <span>Chủ tài khoản:</span>
+          <span class="font-bold text-slate-800">GIA HUY PACK</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // DATA SOURCE
+    const PACKS_DATA = [
+      {
+        id: "arisu-tendou",
+        title: "Arisu Tendou",
+        edition: "both",
+        resolution: "64x",
+        version: "1.8.9 - 1.20+",
+        images: [
+          "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&q=80",
+          "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80"
+        ],
+        tags: ["Blue Archive", "Anime", "PvP"],
+        downloads: { java: "#", bedrock: "#" }
+      },
+      {
+        id: "date-a-live-210",
+        title: "Date A Live 210",
+        edition: "java",
+        resolution: "128x",
+        version: "1.20+",
+        images: [
+          "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800&q=80",
+          "https://images.unsplash.com/photo-1563089145-599997674d42?w=800&q=80"
+        ],
+        tags: ["Tohka", "Anime", "Fantasy"],
+        downloads: { java: "#" }
+      },
+      {
+        id: "furina-de-fontaine",
+        title: "Furina de Fontaine",
+        edition: "both",
+        resolution: "32x",
+        version: "1.16 - 1.20+",
+        images: [
+          "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&q=80",
+          "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80"
+        ],
+        tags: ["Genshin Impact", "Hydro", "Anime"],
+        downloads: { java: "#", bedrock: "#" }
+      },
+      {
+        id: "frieren",
+        title: "Frieren Beyond Journey",
+        edition: "java",
+        resolution: "64x",
+        version: "1.20+",
+        images: [
+          "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80"
+        ],
+        tags: ["Frieren", "Elf", "Magic"],
+        downloads: { java: "#" }
+      },
+      {
+        id: "zenless-zone-zero-210",
+        title: "Zenless Zone Zero 210",
+        edition: "bedrock",
+        resolution: "16x",
+        version: "Bedrock 1.20+",
+        images: [
+          "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80"
+        ],
+        tags: ["ZZZ", "Cyberpunk", "Clean"],
+        downloads: { bedrock: "#" }
+      },
+      {
+        id: "hutao-remake",
+        title: "Hutao Remake",
+        edition: "both",
+        resolution: "64x",
+        version: "1.8.9 & 1.20+",
+        images: [
+          "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=800&q=80"
+        ],
+        tags: ["Genshin Impact", "Pyro", "PvP"],
+        downloads: { java: "#", bedrock: "#" }
+      },
+      {
+        id: "rikka-takanashi",
+        title: "Rikka Takanashi",
+        edition: "java",
+        resolution: "32x",
+        version: "1.8.9 - 1.12.2",
+        images: [
+          "https://images.unsplash.com/photo-1560972550-aba3456b4564?w=800&q=80"
+        ],
+        tags: ["Chuunibyou", "Anime", "PvP"],
+        downloads: { java: "#" }
+      },
+      {
+        id: "elaina",
+        title: "Wandering Witch Elaina",
+        edition: "both",
+        resolution: "64x",
+        version: "1.16.5 - 1.20+",
+        images: [
+          "https://images.unsplash.com/photo-1518818419601-72c8673f5852?w=800&q=80"
+        ],
+        tags: ["Elaina", "Witch", "Soft Purple"],
+        downloads: { java: "#", bedrock: "#" }
+      }
+    ];
+
+    let currentEdition = 'all';
+    let cardImageIndexes = {};
+
+    // INITIALIZE PAGE
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      renderPacks(PACKS_DATA);
+    });
+
+    // RENDER CARDS
+    function renderPacks(packs) {
+      const grid = document.getElementById('packsGrid');
+      const emptyState = document.getElementById('emptyState');
+
+      grid.innerHTML = '';
+
+      if (packs.length === 0) {
+        grid.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      grid.classList.remove('hidden');
+      emptyState.classList.add('hidden');
+
+      packs.forEach(pack => {
+        if (cardImageIndexes[pack.id] === undefined) {
+          cardImageIndexes[pack.id] = 0;
+        }
+
+        const card = document.createElement('div');
+        card.className = "glass-card rounded-2xl overflow-hidden flex flex-col p-3 border border-white/80";
+
+        const currentImg = pack.images[cardImageIndexes[pack.id]] || pack.images[0];
+
+        card.innerHTML = `
+          <!-- Image Container with Slider -->
+          <div class="relative w-full h-44 rounded-xl overflow-hidden mb-3 bg-slate-200 shadow-inner group">
+            <img id="img-${pack.id}" src="${currentImg}" alt="${pack.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+
+            <!-- Edition Badge -->
+            <div class="absolute top-2.5 left-2.5 flex gap-1">
+              ${pack.edition === 'java' || pack.edition === 'both' ? '<span class="px-2 py-0.5 bg-amber-500/90 text-white rounded-md text-[10px] font-extrabold backdrop-blur-sm">JAVA</span>' : ''}
+              ${pack.edition === 'bedrock' || pack.edition === 'both' ? '<span class="px-2 py-0.5 bg-emerald-500/90 text-white rounded-md text-[10px] font-extrabold backdrop-blur-sm">BEDROCK</span>' : ''}
+            </div>
+
+            <!-- Resolution Badge -->
+            <div class="absolute top-2.5 right-2.5 bg-slate-900/60 text-white px-2 py-0.5 rounded-md text-[10px] font-bold backdrop-blur-sm">
+              ${pack.resolution}
+            </div>
+
+            <!-- Image Dots -->
+            ${pack.images.length > 1 ? `
+              <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2 py-1 bg-black/30 backdrop-blur-md rounded-full">
+                ${pack.images.map((_, idx) => `
+                  <button onclick="changeCardImage('${pack.id}', ${idx})" class="w-2 h-2 rounded-full transition-all ${idx === cardImageIndexes[pack.id] ? 'bg-pink-400 w-4' : 'bg-white/60'}"></button>
+                `).join('')}
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Card Body -->
+          <div class="flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="font-extrabold text-base text-slate-800 line-clamp-1">${pack.title}</h3>
+              <p class="text-xs text-slate-500 font-medium mt-0.5">Phiên bản: ${pack.version}</p>
+
+              <!-- Tags -->
+              <div class="flex flex-wrap gap-1 mt-2.5">
+                ${pack.tags.map(tag => `<span class="px-2 py-0.5 bg-white/70 text-pink-600 rounded-md text-[10px] font-bold border border-pink-100">#${tag}</span>`).join('')}
+              </div>
+            </div>
+
+            <!-- Button Action -->
+            <button onclick="openDetailModal('${pack.id}')" class="mt-4 w-full py-2 bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>Xem & Tải về</span>
+            </button>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    // CAROUSEL NAV WITHIN CARD
+    function changeCardImage(packId, index) {
+      cardImageIndexes[packId] = index;
+      const pack = PACKS_DATA.find(p => p.id === packId);
+      const imgElem = document.getElementById(`img-${packId}`);
+      if (imgElem && pack) {
+        imgElem.src = pack.images[index];
+      }
+      filterPacks(); // Refresh dots state
+    }
+
+    // SEARCH & FILTER LOGIC
+    function filterPacks() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      const clearBtn = document.getElementById('clearSearch');
+
+      clearBtn.classList.toggle('hidden', query === '');
+
+      const filtered = PACKS_DATA.filter(pack => {
+        const matchesQuery = pack.title.toLowerCase().includes(query) || pack.tags.some(t => t.toLowerCase().includes(query));
+        const matchesEdition = currentEdition === 'all' || pack.edition === currentEdition || pack.edition === 'both';
+        return matchesQuery && matchesEdition;
+      });
+
+      renderPacks(filtered);
+    }
+
+    function setEdition(edition) {
+      currentEdition = edition;
+      ['all', 'java', 'bedrock'].forEach(e => {
+        const tab = document.getElementById(`tab-${e}`);
+        if (e === edition) {
+          tab.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-pink-600 shadow-sm";
+        } else {
+          tab.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900";
+        }
+      });
+      filterPacks();
+    }
+
+    function clearSearchInput() {
+      document.getElementById('searchInput').value = '';
+      filterPacks();
+    }
+
+    // DETAIL MODAL
+    function openDetailModal(packId) {
+      const pack = PACKS_DATA.find(p => p.id === packId);
+      if (!pack) return;
+
+      const modalContent = document.getElementById('modalContent');
+      modalContent.innerHTML = `
+        <div class="flex flex-col gap-4">
+          <div class="relative w-full h-64 rounded-2xl overflow-hidden bg-slate-100 shadow-inner">
+            <img src="${pack.images[0]}" alt="${pack.title}" class="w-full h-full object-cover" />
+          </div>
+
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="px-2.5 py-0.5 bg-pink-100 text-pink-600 font-extrabold text-xs rounded-md">${pack.resolution}</span>
+              <span class="text-xs font-semibold text-slate-500">${pack.version}</span>
+            </div>
+            <h2 class="text-2xl font-extrabold text-slate-800">${pack.title}</h2>
+          </div>
+
+          <div class="p-3 bg-white/60 rounded-xl border border-white text-xs text-slate-600 space-y-1">
+            <p><strong>Tác giả:</strong> GiaHuyPack Team</p>
+            <p><strong>Độ phân giải:</strong> ${pack.resolution}</p>
+            <p><strong>Tương thích:</strong> Optifine / Iris Shader khuyên dùng</p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-3 pt-2">
+            ${pack.downloads.java ? `
+              <a href="${pack.downloads.java}" class="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-all">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span>Tải cho Java Edition</span>
+              </a>
+            ` : ''}
+            ${pack.downloads.bedrock ? `
+              <a href="${pack.downloads.bedrock}" class="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-all">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span>Tải cho Bedrock (.mcpack)</span>
+              </a>
+            ` : ''}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('detailModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+    }
+
+    // DONATE MODAL
+    function openDonateModal() {
+      document.getElementById('donateModal').classList.remove('hidden');
+    }
+
+    function closeDonateModal() {
+      document.getElementById('donateModal').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
